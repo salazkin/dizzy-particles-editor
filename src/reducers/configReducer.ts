@@ -1,25 +1,70 @@
 import Utils from "../helper/Utils";
+import produce from "immer";
+import { UPDATE_CONFIG_VALUE, UPDATE_INPUT_VALUE } from "../actions/types";
 
-const configReducer = (state, action) => {
-    let data = {};
+const configInitialState = {
+    particles: { value: [5], min: 1, max: 99, isSingleValue: true },
+    loop: { value: [1], isBool: true, isSingleValue: true },
+    duration: { value: [1], min: 0 },
+    delay: { value: [0], min: 0 },
+    posStartOffsetX: { value: [0] },
+    posStartOffsetY: { value: [0] },
+    posEndOffsetX: { value: [0] },
+    posEndOffsetY: { value: [0] },
+    posControlPoint1Mag: { value: [0] },
+    posControlPoint1Angle: { value: [0] },
+    posControlPoint2Mag: { value: [0] },
+    posControlPoint2Angle: { value: [0] },
+    scaleFrom: { value: [1] },
+    scaleTo: { value: [1] },
+    scaleYoYo: { value: [0], isBool: true, isSingleValue: true },
+    rotationSpeed: { value: [0] },
+    rotationFaceDir: { value: [0], isBool: true, isSingleValue: true },
+    alphaFrom: { value: [1], min: 0 },
+    alphaTo: { value: [1], min: 0 },
+    alphaYoYo: { value: [0], isBool: true, isSingleValue: true },
+    tint: { value: ["0xffffff"], isColor: true },
+    tintInterpolate: { value: [0], isBool: true, isSingleValue: true },
+    additive: { value: [0], isBool: true, isSingleValue: true },
+};
 
-    switch (action.type) {
-        case "INIT_CONFIG_PROP":
-            data[action.id] = Object.assign({}, state[action.id], action.value);
-            return Object.assign(state, data);
 
-        case "SET_CONFIG_PROP":
-            let properValue = getProperValue(state[action.id], action.id, action.value);
-            if (properValue !== null) {
-                data[action.id] = Object.assign({}, state[action.id], { value: properValue });
-                return Object.assign(state, data)
-            } else {
-                return state;
-            }
-        default:
-            return {}
+const getStrValue = (value: any[], isBool: boolean, isColor: boolean): string => {
+    if (isColor) {
+        return value.map(item => Utils.rgbToHex(Utils.hexToRgb(item), "")).join(", ");
+    } else if (isBool) {
+        return value[0] === 1 ? "true" : "false";
+    } else {
+        return value.map(item => Array.isArray(item) ? item.join("~") : item).join(",");
     }
+};
+
+for (const key in configInitialState) {
+    const data = configInitialState[key];
+    data.strValue = getStrValue(data.value, data.isBool, data.isColor);
 }
+
+const configReducer = (state = configInitialState, action) => {
+    switch (action.type) {
+        case UPDATE_INPUT_VALUE:
+            return produce(state, (draft) => {
+                draft[action.payload.id].strValue = action.payload.value;
+            });
+
+        case UPDATE_CONFIG_VALUE:
+            let properValue = getProperValue(state[action.payload.id], action.payload.id, action.payload.value);
+            if (properValue === null) {
+                properValue = state[action.payload.id].value;
+            }
+            return produce(state, (draft) => {
+                draft[action.payload.id].value = properValue;
+                draft[action.payload.id].strValue = getStrValue(properValue, state[action.payload.id].isBool, state[action.payload.id].isColor);
+            });
+
+        default:
+            return state;
+    }
+};
 
 const getProperValue = (data: any, key: string, value: string): any => {
     let spaceTrimStr = Utils.removeWhiteSpace(value);
@@ -57,28 +102,30 @@ const getProperValue = (data: any, key: string, value: string): any => {
     }
 
     return parse.map(item => {
-        if (data.isColor) {
+        if (data.isColor && item.color) {
             let rgb = Utils.hexToRgb(item.color);
             return Utils.rgbToHex(rgb, "0x");
         } else if (item.range !== undefined) {
             return item.range.map(value => Utils.clampValue(data.min, data.max, value));
         } else {
-
-            console.log(data);
-
-            return Utils.clampValue(data.min, data.max, item.num);
+            return Utils.clampValue(data.min, data.max, item.num!);
         }
     });
-}
+};
 
 type DataInfo = {
-    num: number, bool: boolean | number, str: string, range: number[], color: string
-}
+    num?: number, bool?: boolean | number, str?: string, range?: number[], color?: string;
+};
+
 
 const parseValues = (str: string): null | DataInfo[] => {
     let err = false;
     let arr = str.split(",").map(v => {
-        let num: number, bool: boolean | number, str: string, range: number[], color: string;
+        let num: number | undefined;
+        let bool: boolean | number | undefined;;
+        let str: string | undefined;;
+        let range: number[] | undefined;;
+        let color: string | undefined;;
 
         if (Utils.isValidColor(v)) {
             color = v;
@@ -89,7 +136,7 @@ const parseValues = (str: string): null | DataInfo[] => {
             if (rangeParse.length > 2) {
                 err = true;
             } else if (Utils.isNumber(rangeParse[0]) && Utils.isNumber(rangeParse[1])) {
-                range = [Number(rangeParse[0]), Number(rangeParse[1])]
+                range = [Number(rangeParse[0]), Number(rangeParse[1])];
             } else {
                 err = true;
             }
@@ -114,7 +161,8 @@ const parseValues = (str: string): null | DataInfo[] => {
     if (!err) {
         return arr;
     }
-}
+    return null;
+};
 
 
 export default configReducer;
