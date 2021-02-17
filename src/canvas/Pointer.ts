@@ -1,6 +1,6 @@
 
 import { Sprite, Renderer, Node, Point, Rect } from "dizzy-canvas";
-import Graphycs from "./Graphycs";
+import Graphics from "./Graphics";
 
 export default class Pointer extends Node {
 
@@ -12,14 +12,14 @@ export default class Pointer extends Node {
         super("pointer");
         this.sprite = new Sprite();
         this.sprite.setAnchor(0.5);
-        Graphycs.drawRect("pointer", this.pointerWidth, this.pointerHeight, "#ffffff").then((img: HTMLImageElement) => {
+        Graphics.drawRect("pointer", this.pointerWidth, this.pointerHeight, "#ffffff").then((img: HTMLImageElement) => {
             this.sprite.setTexture(img);
         });
         renderer.stage.addChild(this.sprite);
     }
 
     public checkPointerOver(x: number, y: number): boolean {
-        return this.checkPointInRect({ x: x, y: y }, this.sprite.getBounds());
+        return this.checkPointInRect({ x: x, y: y }, this.sprite.getBounds()!);
     }
 
     private checkPointInRect(p1: Point, rect: Rect): boolean {

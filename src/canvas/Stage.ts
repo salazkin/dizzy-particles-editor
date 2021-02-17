@@ -16,7 +16,7 @@ export default class Stage {
     private timer: Timer;
 
     constructor(private canvas: HTMLCanvasElement) {
-        this.renderer = new Renderer(canvas);
+        this.renderer = new Renderer(this.canvas);
 
         this.stage = new Node("stage");
         this.root = this.stage.addChild(new Node("root"));
@@ -26,13 +26,13 @@ export default class Stage {
         this.pointer = new Pointer(this.renderer);
         this.root.addChild(this.pointer);
 
-        this.greed = new Greed(this.renderer)
+        this.greed = new Greed(this.renderer);
         this.root.addChild(this.greed);
 
         document.addEventListener("mousedown", this.onMouseDown.bind(this));
         document.addEventListener("mousemove", this.onMouseMove.bind(this));
         document.addEventListener("mouseup", this.onMouseUp.bind(this));
-        document.addEventListener("mouseupoutside", this.onMouseUp.bind(this));
+        //document.addEventListener("mouseupoutside", this.onMouseUp.bind(this));
         document.addEventListener("wheel", this.onWheel.bind(this));
         window.addEventListener("resize", this.onResize.bind(this));
 
@@ -124,15 +124,16 @@ export default class Stage {
     }
 
     public globalTranslate(target: Node, dx: number, dy: number): void {
-        let ang = -target.parent.transform.global.rotation;
+        const parent = target.parent!;
+        let ang = -parent.transform.global.rotation;
         let cos = Math.cos(ang);
-        let sin = Math.sin(ang)
+        let sin = Math.sin(ang);
 
         let a = dx * cos - dy * sin;
         let b = dx * sin + dy * cos;
 
-        target.x += a / target.parent.transform.global.scaleX;
-        target.y += b / target.parent.transform.global.scaleY;
+        target.x += a / parent.transform.global.scaleX;
+        target.y += b / parent.transform.global.scaleY;
     }
 
     public onEnterFrame(): void {

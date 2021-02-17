@@ -1,6 +1,6 @@
 
 import { Sprite, Renderer, Node } from "dizzy-canvas";
-import Graphycs from "./Graphycs";
+import Graphics from "./Graphics";
 
 export default class Greed extends Node {
 
@@ -17,7 +17,7 @@ export default class Greed extends Node {
         this.container.addChild(this.vertical);
 
 
-        Graphycs.drawRect("line", 10, 1, "#ffffff").then((img: HTMLImageElement) => {
+        Graphics.drawRect("line", 10, 1, "#ffffff").then((img: HTMLImageElement) => {
             this.horizontal.setTexture(img);
             this.horizontal.setAnchor(0.5);
             this.horizontal.width = window.innerWidth;

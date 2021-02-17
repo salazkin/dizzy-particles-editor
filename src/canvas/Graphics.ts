@@ -1,5 +1,5 @@
 
-export default class Graphycs {
+export default class Graphics {
 
 
     public static drawRect(id: string, width: number, height: number, color: string): Promise<HTMLImageElement> {
@@ -7,7 +7,7 @@ export default class Graphycs {
         canvas.width = width;
         canvas.height = height;
 
-        let context = canvas.getContext('2d');
+        let context = canvas.getContext('2d')!;
         context.fillStyle = color;
         context.fillRect(0, 0, width, height);
 
