@@ -1,21 +1,14 @@
-import React, { Component } from 'react';
-import '../css/Styles.css';
-import Controls from './Controls';
+import React from 'react';
 import Canvas from './Canvas';
+import Controls from './Controls';
 
-class App extends Component<any, any> {
-
-
-    render() {
-        return (
-            <div className="App">
-
-                <Canvas />
-                <Controls />
-            </div>
-        );
-    }
-}
-
+const App: React.FC = () => {
+    return (
+        <div className="app">
+            <Canvas />
+            <Controls />
+        </div>
+    );
+};
 
 export default App;

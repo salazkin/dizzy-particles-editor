@@ -1,14 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 
-class PropId extends Component<any, any> {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return (<span className="PropId" >{this.props.value}</span>);
-    }
-}
+const PropId: React.FC<{ value: string; }> = props => {
+    return (
+        <span className="prop-id prop-font" >{props.value}</span>
+    );
+};
 
 export default PropId;

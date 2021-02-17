@@ -1,24 +1,16 @@
-import React, { Component } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Stage from '../canvas/Stage';
 
-class Canvas extends Component<any, any> {
+const Canvas: React.FC = () => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    private canvas: HTMLCanvasElement;
+    useEffect(() => { new Stage(canvasRef.current!); }, []);
+    return (
+        <canvas ref={canvasRef} onContextMenu={(e) => e.preventDefault()} className="canvas" width={window.innerWidth} height={window.innerHeight}></canvas>
+    );
+};
 
-    public componentDidMount(): void {
-        new Stage(this.canvas);
-    }
 
-    canvasRef = ref => {
-        this.canvas = ref;
-    };
-
-    render() {
-        return (
-            <canvas ref={this.canvasRef} onContextMenu={(e) => e.preventDefault()} className="Canvas" width={window.innerWidth} height={window.innerHeight}></canvas>
-        );
-    }
-}
 
 
 export default Canvas;
