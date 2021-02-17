@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+$side-bar-bg-color: rgb(255, 255, 255);
+$prop-title-color: rgb(155, 155, 155);
+$prop-id-color: rgb(0, 0, 0);
+$prop-value-color: rgb(60, 153, 220);
+$prop-value-hover: darken($prop-value-color, 20%);
+$prop-value-focus: darken($prop-value-color, 20%);
+
+html {
+    font-size: 62.5%; //10px/16px
+}
+
+.side-bar {
+    background-color: $side-bar-bg-color;
+    position: fixed;
+    width: 30rem;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.canvas {
+    position: absolute;
+}
+
+.prop-title {
+    color: $prop-title-color;
+}
+
+.prop-field {
+    margin: 1rem;
+}
+
+.prop-id {
+    color: $prop-id-color;
+}
+
+.prop-font {
+    font-size: 1.6rem;
+    font-family: sans-serif;
+}
+
+.prop-dummy-value {
+    position: absolute;
+    visibility: hidden;
+}
+
+.input-container {
+    display: inline;
+}
+
+.input-value {
+    visibility: visible;
+    border: 0;
+    color: $prop-value-color;
+    &:focus {
+        outline: none;
+        color: $prop-value-focus;
+    }
+    &:hover {
+        color: $prop-value-hover;
+    }
+}
