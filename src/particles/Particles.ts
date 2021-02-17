@@ -203,7 +203,7 @@ const Utils = {
     },
 
     hexToRgb(color) {
-        let arr = [];
+        let arr:number[] = [];
         for (let i = 2; i >= 0; i--) {
             let c = color.substring(color.length - i * 2 - 2, color.length - i * 2);
             arr.push(parseInt(c, 16))
@@ -217,7 +217,7 @@ const Utils = {
     //export_skip
     getInterpolatedColors(hexArr, steps) {
         let arr = hexArr.map(hex => this.hexToHsl(hex));
-        let out = [];
+        let out:string[] = [];
         let step = 1 / steps;
         for (let i = 0; i < steps + 1; i++) {
             let t = Math.min(step * i, 1);
@@ -269,7 +269,7 @@ const Utils = {
         return [h, s, l]; //[0,1] range
     },
 
-    hslToHex(arr) {
+    hslToHex(arr):string {
         let h = arr[0];
         let s = arr[1];
         let l = arr[2];
