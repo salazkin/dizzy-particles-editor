@@ -2,30 +2,35 @@ import Utils from "../helper/Utils";
 import produce from "immer";
 import { UPDATE_CONFIG_VALUE, UPDATE_INPUT_VALUE } from "../actions/types";
 
+
 const configInitialState = {
-    particles: { value: [5], min: 1, max: 99, isSingleValue: true },
-    loop: { value: [1], isBool: true, isSingleValue: true },
-    duration: { value: [1], min: 0 },
-    delay: { value: [0], min: 0 },
-    posStartOffsetX: { value: [0] },
-    posStartOffsetY: { value: [0] },
-    posEndOffsetX: { value: [0] },
-    posEndOffsetY: { value: [0] },
-    posControlPoint1Mag: { value: [0] },
-    posControlPoint1Angle: { value: [0] },
-    posControlPoint2Mag: { value: [0] },
-    posControlPoint2Angle: { value: [0] },
-    scaleFrom: { value: [1] },
-    scaleTo: { value: [1] },
-    scaleYoYo: { value: [0], isBool: true, isSingleValue: true },
-    rotationSpeed: { value: [0] },
-    rotationFaceDir: { value: [0], isBool: true, isSingleValue: true },
-    alphaFrom: { value: [1], min: 0 },
-    alphaTo: { value: [1], min: 0 },
-    alphaYoYo: { value: [0], isBool: true, isSingleValue: true },
-    tint: { value: ["0xffffff"], isColor: true },
-    tintInterpolate: { value: [0], isBool: true, isSingleValue: true },
-    additive: { value: [0], isBool: true, isSingleValue: true },
+    inputValues: {},
+    params: {
+        particles: { value: [5], min: 1, max: 99, isSingleValue: true },
+        loop: { value: [1], isBool: true, isSingleValue: true },
+        duration: { value: [1], min: 0 },
+        delay: { value: [0], min: 0 },
+        posStartOffsetX: { value: [0] },
+        posStartOffsetY: { value: [0] },
+        posEndOffsetX: { value: [0] },
+        posEndOffsetY: { value: [0] },
+        posControlPoint1Mag: { value: [0] },
+        posControlPoint1Angle: { value: [0] },
+        posControlPoint2Mag: { value: [0] },
+        posControlPoint2Angle: { value: [0] },
+        scaleFrom: { value: [1] },
+        scaleTo: { value: [1] },
+        scaleYoYo: { value: [0], isBool: true, isSingleValue: true },
+        rotationSpeed: { value: [0] },
+        rotationFaceDir: { value: [0], isBool: true, isSingleValue: true },
+        alphaFrom: { value: [1], min: 0 },
+        alphaTo: { value: [1], min: 0 },
+        alphaYoYo: { value: [0], isBool: true, isSingleValue: true },
+        tint: { value: ["0xffffff"], isColor: true },
+        tintInterpolate: { value: [0], isBool: true, isSingleValue: true },
+        additive: { value: [0], isBool: true, isSingleValue: true }
+    },
+    output: null
 };
 
 
@@ -39,27 +44,57 @@ const getStrValue = (value: any[], isBool: boolean, isColor: boolean): string =>
     }
 };
 
-for (const key in configInitialState) {
-    const data = configInitialState[key];
-    data.strValue = getStrValue(data.value, data.isBool, data.isColor);
+const getOutput = (params) => {
+    const out: any = {};
+    Object.keys(params).forEach(key => {
+        if (params[key].value.length === 1 && !Array.isArray(params[key].value[0])) {
+            out[key] = params[key].value[0];
+        } else {
+            out[key] = params[key].value;
+        }
+        if (out[key] === 0) {
+            out[key] = undefined;
+        };
+
+        if (params[key].isBool && out[key] !== undefined) {
+            out[key] = true;
+        }
+    });
+
+    if (out.tint === "0xffffff") {
+        out.tint = undefined;
+    }
+    Object.keys(out).forEach(key => out[key] === undefined ? delete out[key] : {});
+    return out;
+};
+
+for (const key in configInitialState.params) {
+    const data = configInitialState.params[key];
+    configInitialState.inputValues[key] = getStrValue(data.value, data.isBool, data.isColor);
 }
+configInitialState.output = getOutput(configInitialState.params);
+
 
 const configReducer = (state = configInitialState, action) => {
     switch (action.type) {
         case UPDATE_INPUT_VALUE:
             return produce(state, (draft) => {
-                draft[action.payload.id].strValue = action.payload.value;
+                draft.inputValues[action.payload.id] = action.payload.value;
             });
 
         case UPDATE_CONFIG_VALUE:
-            let properValue = getProperValue(state[action.payload.id], action.payload.id, action.payload.value);
+            const data = state.params[action.payload.id];
+            let properValue = getProperValue(data, action.payload.id, action.payload.value);
             if (properValue === null) {
-                properValue = state[action.payload.id].value;
+                properValue = data.value;
             }
             return produce(state, (draft) => {
-                draft[action.payload.id].value = properValue;
-                draft[action.payload.id].strValue = getStrValue(properValue, state[action.payload.id].isBool, state[action.payload.id].isColor);
+                draft.params[action.payload.id].value.length = 0;
+                draft.params[action.payload.id].value.push(...properValue);
+                draft.inputValues[action.payload.id] = getStrValue(properValue, data.isBool, data.isColor);
+                draft.output = getOutput(draft.params);
             });
+
 
         default:
             return state;
