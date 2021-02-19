@@ -25,9 +25,7 @@ export default class Stage {
 
         this.pointer = new Pointer(this.renderer);
         this.root.addChild(this.pointer);
-
-        this.greed = new Greed(this.renderer);
-        this.root.addChild(this.greed);
+ 
 
         document.addEventListener("mousedown", this.onMouseDown.bind(this));
         document.addEventListener("mousemove", this.onMouseMove.bind(this));
