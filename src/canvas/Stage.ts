@@ -1,6 +1,7 @@
 import { Renderer, Timer, Node } from "dizzy-canvas";
 import Pointer from "./Pointer";
 import Greed from "./Greed";
+import Particles from "../particles/Particles";
 
 export default class Stage {
 
@@ -15,6 +16,7 @@ export default class Stage {
     private renderer: Renderer;
     private timer: Timer;
 
+    private particles:Particles; 
     constructor(private canvas: HTMLCanvasElement) {
         this.renderer = new Renderer(this.canvas);
 
@@ -22,6 +24,9 @@ export default class Stage {
         this.root = this.stage.addChild(new Node("root"));
 
         this.timer = new Timer(this.onEnterFrame.bind(this));
+
+        this.greed = new Greed(this.renderer);
+        this.root.addChild(this.greed);
 
         this.pointer = new Pointer(this.renderer);
         this.root.addChild(this.pointer);
@@ -37,6 +42,26 @@ export default class Stage {
         this.resetStagePosition();
 
         this.timer.start();
+    }
+
+    
+    public createParticles(conf){
+       /* this.particles = this.particlesContainer.addChild(new Particles(conf, this.createParticle.bind(this)));
+        this.particles.startAnimation();*/
+        console.log(conf)
+    }
+
+    private createParticle(){
+        /*let conf = Resources.getSpriteConfig();
+        let fps = conf.fps || 30;
+
+        let anim = new PIXI.extras.AnimatedSprite(Resources.getTextures());
+        anim.anchor.set(0.5);
+        anim.animationSpeed = fps / 60;
+
+        let randomFrame = Math.floor(conf.frames * Math.random())
+        anim.gotoAndStop(randomFrame);
+        return anim;*/
     }
 
 
