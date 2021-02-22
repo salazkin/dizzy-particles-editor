@@ -30,6 +30,8 @@ export default class Pointer extends Node {
         let poked = super.updateGlobalTransform(poke);
         this.sprite.x = this.transform.global.x;
         this.sprite.y = this.transform.global.y;
+        this.sprite.scaleX = this.transform.global.scaleX;
+        this.sprite.scaleY = this.transform.global.scaleY;
         return poked;
     }
 
