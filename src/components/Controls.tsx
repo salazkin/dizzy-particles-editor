@@ -5,7 +5,9 @@ const Controls: React.FC = () => {
     return (
         <div className="side-bar">
             <div>
-                <PropGroup id={"init"} items={{ particles: "particles", loop: "loop" }} />
+                {/*
+                <PropGroup id={"init"} items={{ particles: "particles", loop: "loop" }} /> TODO: fix particles reset
+                */}
                 <PropGroup id={"time"} items={{ duration: "duration", delay: "delay" }} />
                 <PropGroup id={"start"} items={{ x: "posStartOffsetX", y: "posStartOffsetY" }} />
                 <PropGroup id={"end"} items={{ x: "posEndOffsetX", y: "posEndOffsetY" }} />
@@ -14,7 +16,9 @@ const Controls: React.FC = () => {
                 <PropGroup id={"scale"} items={{ from: "scaleFrom", to: "scaleTo", yoyo: "scaleYoYo" }} />
                 <PropGroup id={"rotation"} items={{ speed: "rotationSpeed", faceDir: "rotationFaceDir" }} />
                 <PropGroup id={"alpha"} items={{ from: "alphaFrom", to: "alphaTo", yoyo: "alphaYoYo" }} />
-                <PropGroup id={"color"} items={{ tint: "tint", interpolate: "tintInterpolate", additive: "additive" }} />
+                {/*
+                <PropGroup id={"color"} items={{ tint: "tint", interpolate: "tintInterpolate", additive: "additive" }} />  TODO: add color tint support in dizzy-canvas
+                */} 
             </div>
         </div>
     );
