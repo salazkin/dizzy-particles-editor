@@ -6,14 +6,14 @@ import { UPDATE_CONFIG_VALUE, UPDATE_INPUT_VALUE } from "../actions/types";
 const configInitialState = {
     inputValues: {},
     params: {
-        particles: { value: [5], min: 1, max: 99, isSingleValue: true },
+        particles: { value: [50], min: 1, max: 99, isSingleValue: true },
         loop: { value: [1], isBool: true, isSingleValue: true },
         duration: { value: [1], min: 0 },
-        delay: { value: [0], min: 0 },
+        delay: { value: [0.02], min: 0 },
         posStartOffsetX: { value: [0] },
         posStartOffsetY: { value: [0] },
-        posEndOffsetX: { value: [0] },
-        posEndOffsetY: { value: [0] },
+        posEndOffsetX: { value: [[-100, 100]] },
+        posEndOffsetY: { value: [[-100, 100]] },
         posControlPoint1Mag: { value: [0] },
         posControlPoint1Angle: { value: [0] },
         posControlPoint2Mag: { value: [0] },
