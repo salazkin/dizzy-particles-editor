@@ -148,8 +148,6 @@ export default class Stage {
 
     public onEnterFrame(dt: number): void {
         this.updateGlobalTransform(this.stage);
-        this.particlesRenderer.update(dt);
-
         this.renderer.present();
     }
 
