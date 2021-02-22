@@ -37,11 +37,11 @@ export default class ParticlesRenderer extends Node {
         this.particles.update(dt / 1000);
         this.particles.particles.forEach((particleData, i) => {
             const particle = this.getParticle(i);
-            particle.x = particleData.x;
-            particle.y = particleData.y;
-            particle.alpha = particleData.alpha;
-            particle.scaleX = particleData.scaleX;
-            particle.scaleY = particleData.scaleY;
+            particle.x = particleData.result.x;
+            particle.y = particleData.result.y;
+            particle.alpha = particleData.result.alpha;
+            particle.scaleX = particleData.result.scaleX;
+            particle.scaleY = particleData.result.scaleY;
         });
     }
 
