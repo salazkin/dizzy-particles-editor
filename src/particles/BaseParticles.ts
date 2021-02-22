@@ -1,36 +1,45 @@
+export interface IParticle {
+    x: number;
+    y: number;
+    alpha: number;
+    scaleX: number;
+    scaleY: number;
+}
 
-export default class BaseParticles {
+type ParticleData<T> = {
+    configUpdated: boolean,
+    delay: number,
+    duration: number,
+    particle: IParticle;
+    config: T;
+};
 
-    protected totalParticles;
-    protected createFunc
-    protected cb;
-    protected particleDataArr = [];
-    protected loop = true;
-    protected visible = false;
-    protected time = 0;
-    protected delay = 0;
+export default abstract class BaseParticles<T> {
 
-    constructor(totalParticles, createFunc, params, cb) {
-        this.totalParticles = totalParticles;
-        this.createFunc = createFunc;
-        this.cb = cb;
-
+    protected particleDataArr: ParticleData<T>[] = [];
+    protected loop: boolean = true;
+    //protected visible = false;
+    protected time: number = 0;
+    protected delay: number = 0;
+    protected cb: Function | undefined | null;
+    constructor(protected totalParticles: number, protected createFunc: (index: number) => IParticle, params: { onComplete?: () => void; additive?: boolean; }) {
+        this.cb = params.onComplete;
         if (params.additive) {
             //this.blendMode = PIXI.BLEND_MODES.ADD;
         }
     }
 
-    public init() {
-        this.visible = false;
+    public init(): void {
+        //this.visible = false;
         this.time = 0;
         this.delay = 0;
 
         this.createParticles(this.totalParticles);
     }
 
-    public startAnimation() {
+    public startAnimation(): void {
         //PIXI.ticker.shared.remove(this.onUpdate, this);
-        this.visible = true;
+        //this.visible = true;
         this.time = 0;
         this.delay = 0;
         if (this.particleDataArr.length > 0) {
@@ -39,23 +48,23 @@ export default class BaseParticles {
         }
     }
 
-    public stopEmitter() {
+    public stopEmitter(): void {
         this.loop = true;
     }
 
-    public stopAnimation() {
+    public stopAnimation(): void {
         //PIXI.ticker.shared.remove(this.onUpdate, this);
-        this.visible = false;
+        //this.visible = false;
         if (this.particleDataArr.length > 0) {
             this.resetParticles();
         }
     }
 
-    public resetParticles() {
+    public resetParticles(): void {
         this.particleDataArr.forEach((particleData, i) => {
             particleData.configUpdated = false;
             particleData.delay = this.getDelay(),
-                particleData.duration = this.getDuration()
+                particleData.duration = this.getDuration();
             if (particleData.particle) {
                 particleData.particle.alpha = 0;
                 particleData.particle.x = 0;
@@ -64,23 +73,24 @@ export default class BaseParticles {
         });
     }
 
-    public update(dt) {
-
+    public update(dt: number): void {
+        const time = this.time;
         let count = 0;
-        let time = this.time;
         this.particleDataArr.forEach(item => {
             if (item.duration === 0) {
                 count++;
                 return;
             }
 
-            let t = (time - item.delay) / item.duration;
+            const t = (time - item.delay) / item.duration;
+
             if (t >= 0 && t <= 1) {
                 item.particle.alpha = 1;
                 if (!item.configUpdated) {
                     item.configUpdated = true;
-                    this.updateConfig(item.config)
+                    this.updateConfig(item.config);
                 }
+
                 this.onUpdateParticle(item.particle, item.config, t);
             } else {
                 item.configUpdated = false;
@@ -101,55 +111,52 @@ export default class BaseParticles {
 
         this.delay = 0;
         this.time += dt;
+        ;
 
         if (count >= this.particleDataArr.length) {
-            this.visible = false;
+            //this.visible = false;
             //PIXI.ticker.shared.remove(this.onUpdate, this);
             this.onComplete();
         }
     }
 
-    public getDuration() {
+    public getDuration(): number {
         return 1;
     }
 
-    public getDelay() {
+    public getDelay(): number {
         return this.time;
     }
 
-    private onComplete() {
+    private onComplete(): void {
         if (this.cb) {
-            //this.cb();
+            this.cb();
         }
     }
 
-    protected createParticles(totalParticles) {
+    protected createParticles(totalParticles: number) {
         for (let i = 0; i < totalParticles; i++) {
-            let particle = this.createParticle(i);
+            const particle = this.createParticle(i);
             if (particle) {
                 particle.alpha = 0;
                 this.particleDataArr.push({
                     particle: particle,
                     configUpdated: false,
-                    config: {},
-                    delay: null,
-                    duration: null
+                    delay: 0,
+                    duration: 0,
+                    config: <T>{}
                 });
             }
         }
     }
 
-    protected createParticle(index) {
+    protected createParticle(index: number): IParticle | null {
         return this.createFunc ? this.createFunc(index) : null;
     }
 
-    public updateConfig(obj) {
+    abstract updateConfig(config: T): void;
 
-    }
-
-    protected onUpdateParticle(particle, config, t) {
-
-    }
+    abstract onUpdateParticle(particle: IParticle, config: T, t: number): void;
 
     public kill() {
         //PIXI.ticker.shared.remove(this.onUpdate, this);

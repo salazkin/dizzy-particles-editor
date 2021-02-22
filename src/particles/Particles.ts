@@ -1,91 +1,138 @@
 import BaseParticles from "./BaseParticles";
+import { IParticle } from "./BaseParticles";
 
-export default class Particles extends BaseParticles {
 
-    private config;
-    private posStart = { x: 0, y: 0 };
-    private posEnd = { x: 0, y: 0 };
-    private curveLen = 20;
-    private curveSeg = 1 / (this.curveLen - 1);
+type ParticlesConfig = {
+    particles: number;
+    loop: boolean;
+    duration?: Array<number | number[]> | number;
+    delay?: Array<number | number[]> | number;
+    posStartOffsetX?: Array<number | number[]> | number;
+    posStartOffsetY?: Array<number | number[]> | number;
+    posEndOffsetX?: Array<number | number[]> | number;
+    posEndOffsetY?: Array<number | number[]> | number;
+    posControlPoint1Mag?: Array<number | number[]> | number;
+    posControlPoint1Angle?: Array<number | number[]> | number;
+    posControlPoint2Mag?: Array<number | number[]> | number;
+    posControlPoint2Angle?: Array<number | number[]> | number;
+    scaleFrom?: Array<number | number[]> | number;
+    scaleTo?: Array<number | number[]> | number;
+    scaleYoYo?: boolean;
+    rotationSpeed?: Array<number | number[]> | number;
+    rotationFaceDir?: boolean;
+    alphaFrom?: Array<number | number[]> | number;
+    alphaTo?: Array<number | number[]> | number;
+    alphaYoYo?: boolean;
+    tint?: string[] | string;
+    tintInterpolate?: boolean;
+    additive?: boolean;
+};
 
-    private correctedTintArr;
+type ParticleData = {
+    posStart: Point;
+    posEnd: Point;
+    cp1: Point | null;
+    cp2: Point | null;
+    curve: number[];
+    alphaFrom: number;
+    alphaTo: number;
+    alphaYoYo: number;
+    scaleFrom: number;
+    scaleTo: number;
+    scaleYoYo: number;
+    rotationSpeed: number;
+    tint: string | string[];
+};
 
-    constructor(config, createFunc, cb) {
-        super(config.particles, createFunc, { additive: config.additive }, cb);
+type Point = {
+    x: number,
+    y: number;
+};
+
+export default class Particles extends BaseParticles<ParticleData> {
+
+    private posStart: Point = { x: 0, y: 0 };
+    private posEnd: Point = { x: 0, y: 0 };
+    private curveLen: number = 20;
+    private curveSeg: number = 1 / (this.curveLen - 1);
+
+    private correctedTintArr: string[] | null = null;
+    private config: ParticlesConfig;
+
+    constructor(config: ParticlesConfig, createFunc: (index: number) => IParticle, cb: () => void) {
+        super(config.particles, createFunc, { onComplete: cb, additive: config.additive });
         this.config = config;
-        console.log(config)
-
         super.init();
     }
 
-    set posStartX(value) {
+    set posStartX(value: number) {
         this.posStart.x = value;
     }
 
-    set posStartY(value) {
+    set posStartY(value: number) {
         this.posStart.y = value;
     }
 
-    set posEndX(value) {
+    set posEndX(value: number) {
         this.posEnd.x = value;
     }
 
-    set posEndY(value) {
+    set posEndY(value: number) {
         this.posEnd.y = value;
     }
 
-    setPosStart(x, y) {
+    setPosStart(x: number, y: number): void {
         this.posStart.x = x;
         this.posStart.y = y;
     }
 
-    setPosEnd(x, y) {
+    setPosEnd(x: number, y: number): void {
         this.posEnd.x = x;
         this.posEnd.y = y;
     }
 
-    /*public updateConfig(config) {
+    public setData(config: ParticlesConfig): void {
         this.correctedTintArr = null;
         this.config = config;
-    }*/
+    }
 
-    startAnimation(posStart?, posEnd?) {
+    startAnimation(posStart?: Point, posEnd?: Point): void {
         if (posStart) {
             this.setPosStart(posStart.x, posStart.y);
         }
         if (posEnd) {
             this.setPosEnd(posEnd.x, posEnd.y);
         }
-        this.loop = this.getValue("loop");
+        this.loop = this.getValue<boolean>("loop");
         super.startAnimation();
     }
 
-    getDuration() {
-        return this.getValue("duration");
+    getDuration(): number {
+        return this.getValue<number>("duration");
     }
 
-    getDelay() {
-        this.delay += this.getValue("delay");
+    getDelay(): number {
+        this.delay += this.getValue<number>("delay");
         return this.time + this.delay;
     }
 
-    updateConfig(obj) {
-        let startX = this.posStart.x + this.getValue("posStartOffsetX");
-        let startY = this.posStart.y + this.getValue("posStartOffsetY");
-        let endX = this.posEnd.x + this.getValue("posEndOffsetX");
-        let endY = this.posEnd.y + this.getValue("posEndOffsetY");
+    updateConfig(obj: ParticleData): void {
+        const startX = this.posStart.x + this.getValue<number>("posStartOffsetX");
+        const startY = this.posStart.y + this.getValue<number>("posStartOffsetY");
+        const endX = this.posEnd.x + this.getValue<number>("posEndOffsetX");
+        const endY = this.posEnd.y + this.getValue<number>("posEndOffsetY");
 
-        obj.posStart = { x: startX, y: startY }
-        obj.posEnd = { x: endX, y: endY }
+        obj.posStart = { x: startX, y: startY };
+        obj.posEnd = { x: endX, y: endY };
         obj.cp1 = null;
         obj.cp2 = null;
 
-        let cp1Mag = this.getValue("posControlPoint1Mag");
-        let cp2Mag = this.getValue("posControlPoint2Mag");
+        const cp1Mag: number = this.getValue<number>("posControlPoint1Mag");
+        const cp2Mag: number = this.getValue<number>("posControlPoint2Mag");
 
         if (cp1Mag !== 0 || cp2Mag !== 0) {
             let dx = endX - startX;
-            let dy = endY - startY
+            let dy = endY - startY;
             let ang = Math.atan2(dx, dy);
             let angle1 = ang + Utils.degreeToRadians(this.getValue("posControlPoint1Angle"));
             let angle2 = -(Math.PI - ang) + Utils.degreeToRadians(this.getValue("posControlPoint2Angle"));
@@ -101,7 +148,7 @@ export default class Particles extends BaseParticles {
             }
         }
 
-        obj.alphaFrom = this.getValue("alphaFrom");
+        obj.alphaFrom = this.getValue<number>("alphaFrom");
         obj.alphaTo = this.getValue("alphaTo");
         obj.alphaYoYo = this.getValue("alphaYoYo");
 
@@ -112,7 +159,7 @@ export default class Particles extends BaseParticles {
                 }
                 obj.tint = this.correctedTintArr;
             } else {
-                obj.tint = this.getValue("tint");
+                obj.tint = this.getValue<string>("tint");
             }
         }
 
@@ -122,17 +169,17 @@ export default class Particles extends BaseParticles {
         obj.rotationSpeed = Utils.degreeToRadians(this.getValue("rotationSpeed"));
     }
 
-    sum(...arr) {
-        return arr.map(key => this.getValue(key)).reduce((accumulator, currentValue) => accumulator + currentValue);
-    }
+    /*sum(...arr: string[]): number {
+        return arr.map(key => this.getValue<number>(key)).reduce((accumulator, currentValue) => accumulator + currentValue);
+    }*/
 
-    getValue(key) {
+    getValue<T>(key: string): T {
         if (Array.isArray(this.config[key])) {
-            let arr = this.config[key];
-            let index = arr.length > 1 ? Math.floor(Math.random() * arr.length) : 0;
+            const arr = this.config[key];
+            const index = arr.length > 1 ? Math.floor(Math.random() * arr.length) : 0;
             if (Array.isArray(arr[index])) {
-                let min = arr[index][0];
-                let max = arr[index][1];
+                const min = arr[index][0];
+                const max = arr[index][1];
                 return Math.random() * (max - min) + min;
             } else {
                 return arr[index];
@@ -143,21 +190,23 @@ export default class Particles extends BaseParticles {
     }
 
     onUpdateParticle(particle, config, t) {
-        let yoyoTime = t * (1 - t) * 2;
+        const yoyoTime = t * (1 - t) * 2;
+
 
         particle.alpha = config.alphaFrom + (config.alphaTo - config.alphaFrom) * (config.alphaYoYo ? yoyoTime : t);
         particle.scale = Utils.interpolate(config.scaleYoYo ? yoyoTime : t, config.scaleFrom, config.scaleTo);
+
 
         if (config.curve) {
             const from = Math.floor(t / this.curveSeg);
             const to = from + 1;
 
             if (config.curve[from] === undefined) {
-                config.curve[from] = from === 0 ? config.posStart : {}
+                config.curve[from] = from === 0 ? config.posStart : {};
             }
 
             if (config.curve[to] === undefined) {
-                config.curve[to] = to === this.curveLen - 1 ? config.posEnd : {}
+                config.curve[to] = to === this.curveLen - 1 ? config.posEnd : {};
             }
 
             if (from !== 0) {
@@ -171,7 +220,7 @@ export default class Particles extends BaseParticles {
             Utils.setPositionOnLine(particle, (t % this.curveSeg) / this.curveSeg, config.curve[from], config.curve[to]);
         } else {
             Utils.setPositionOnLine(particle, t, config.posStart, config.posEnd);
- 
+
         }
 
         if (config.rotationSpeed !== 0) {
@@ -182,8 +231,8 @@ export default class Particles extends BaseParticles {
 
         if (config.tint) {
             if (Array.isArray(config.tint)) {
-                let seg = 1 / (config.tint.length - 1);
-                particle.tint = config.tint[Math.floor(t / seg)]
+                const seg = 1 / (config.tint.length - 1);
+                particle.tint = config.tint[Math.floor(t / seg)];
             } else {
                 particle.tint = config.tint;
             }
@@ -203,10 +252,10 @@ const Utils = {
     },
 
     hexToRgb(color) {
-        let arr:number[] = [];
+        const arr: number[] = [];
         for (let i = 2; i >= 0; i--) {
-            let c = color.substring(color.length - i * 2 - 2, color.length - i * 2);
-            arr.push(parseInt(c, 16))
+            const c = color.substring(color.length - i * 2 - 2, color.length - i * 2);
+            arr.push(parseInt(c, 16));
         }
         return arr;
     },
@@ -215,16 +264,16 @@ const Utils = {
         return prefix + arr.map(v => this.hexValue(v)).join("");
     },
     //export_skip
-    getInterpolatedColors(hexArr, steps) {
-        let arr = hexArr.map(hex => this.hexToHsl(hex));
-        let out:string[] = [];
-        let step = 1 / steps;
+    getInterpolatedColors(hexArr, steps): string[] {
+        const arr = hexArr.map(hex => this.hexToHsl(hex));
+        const out: string[] = [];
+        const step = 1 / steps;
         for (let i = 0; i < steps + 1; i++) {
-            let t = Math.min(step * i, 1);
-            let seg = 1 / (arr.length - 1);
-            let index = Math.min(Math.floor(t / seg), arr.length - 2);
-            let c1 = arr[index];
-            let c2 = arr[index + 1];
+            const t = Math.min(step * i, 1);
+            const seg = 1 / (arr.length - 1);
+            const index = Math.min(Math.floor(t / seg), arr.length - 2);
+            const c1 = arr[index];
+            const c2 = arr[index + 1];
             out.push(this.hslToHex(c1.map((c, i) => this.interpolate(t, c, c2[i], i === 0))));
         }
         return out;
@@ -237,7 +286,7 @@ const Utils = {
         const a = Math.min(v1, v2);
         const b = Math.max(v1, v2);
         const dist1 = b - a;
-        const dist2 = 1 - b + a
+        const dist2 = 1 - b + a;
         if (dist1 < dist2) {
             return a + dist1 * t;
         } else {
@@ -246,16 +295,16 @@ const Utils = {
     },
 
     hexToHsl(hex) {
-        let r = parseInt(hex.substring(hex.length - 6, hex.length - 4), 16) / 255;
-        let g = parseInt(hex.substring(hex.length - 4, hex.length - 2), 16) / 255;
-        let b = parseInt(hex.substring(hex.length - 2, hex.length), 16) / 255;
-        let max = Math.max(r, g, b);
-        let min = Math.min(r, g, b);
+        const r = parseInt(hex.substring(hex.length - 6, hex.length - 4), 16) / 255;
+        const g = parseInt(hex.substring(hex.length - 4, hex.length - 2), 16) / 255;
+        const b = parseInt(hex.substring(hex.length - 2, hex.length), 16) / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
         let l = (max + min) / 2;
         let s = 0;
         let h = 0;
         if (max !== min) {
-            let d = max - min;
+            const d = max - min;
             s = l < 0.5 ? d / (max + min) : d / (2 - max - min);
             if (r == max) {
                 h = (g - b) / d + (g < b ? 6 : 0);
@@ -269,7 +318,7 @@ const Utils = {
         return [h, s, l]; //[0,1] range
     },
 
-    hslToHex(arr):string {
+    hslToHex(arr): string {
         let h = arr[0];
         let s = arr[1];
         let l = arr[2];
@@ -298,7 +347,7 @@ const Utils = {
             return p + (q - p) * 6 * t;
         }
         if (t < 1 / 2) {
-            return q
+            return q;
         }
         if (t < 2 / 3) {
             return p + (q - p) * (2 / 3 - t) * 6;
@@ -330,5 +379,5 @@ const Utils = {
         target.y = Math.pow(1 - t, 3) * p1.y + 3 * Math.pow(1 - t, 2) * t * cp1.y + 3 * (1 - t) * t2 * cp2.y + t3 * p2.y;
     }
 
-}
+};
 
