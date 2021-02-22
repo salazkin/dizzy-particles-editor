@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateConfigValue, updateInputValue } from '../actions';
 
-let prvValue = null;
+let prvValue = "";
 
 const PropValue: React.FC<{ configKey: string; }> = props => {
 
@@ -30,11 +30,11 @@ const PropValue: React.FC<{ configKey: string; }> = props => {
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
         if (event.key === "Enter") {
-            inputRef.current.blur();
+            inputRef.current!.blur();
         }
         if (event.key === "Escape") {
-            inputRef.current.value = prvValue;
-            inputRef.current.blur();
+            inputRef.current!.value = prvValue;
+            inputRef.current!.blur();
         }
     };
 
