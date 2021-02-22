@@ -2,7 +2,8 @@ import { isEqual } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import Stage from '../canvas/Stage';
-let stage = null;
+
+let stage: Stage;
 let currentConfig = null;
 
 const Canvas: React.FC = () => {

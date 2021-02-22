@@ -1,7 +1,7 @@
-import { Renderer, Timer, Node } from "dizzy-canvas";
-import Pointer from "./Pointer";
+import { Node, Renderer, Timer } from "dizzy-canvas";
 import Greed from "./Greed";
-import Particles from "../particles/Particles";
+import ParticlesRenderer from "./ParticlesRenderer";
+import Pointer from "./Pointer";
 
 export default class Stage {
 
@@ -16,7 +16,8 @@ export default class Stage {
     private renderer: Renderer;
     private timer: Timer;
 
-    private particles:Particles; 
+    private particlesRenderer: ParticlesRenderer;
+
     constructor(private canvas: HTMLCanvasElement) {
         this.renderer = new Renderer(this.canvas);
 
@@ -30,7 +31,10 @@ export default class Stage {
 
         this.pointer = new Pointer(this.renderer);
         this.root.addChild(this.pointer);
- 
+
+        this.particlesRenderer = new ParticlesRenderer(this.renderer);
+
+        this.root.addChild(this.particlesRenderer);
 
         document.addEventListener("mousedown", this.onMouseDown.bind(this));
         document.addEventListener("mousemove", this.onMouseMove.bind(this));
@@ -44,26 +48,10 @@ export default class Stage {
         this.timer.start();
     }
 
-    
-    public createParticles(conf){
-       /* this.particles = this.particlesContainer.addChild(new Particles(conf, this.createParticle.bind(this)));
-        this.particles.startAnimation();*/
-        console.log(conf)
+    public createParticles(conf) {
+        this.particlesRenderer.updateConfig(conf);
+        this.particlesRenderer.setPosEnd(this.pointer.x, this.pointer.y);
     }
-
-    private createParticle(){
-        /*let conf = Resources.getSpriteConfig();
-        let fps = conf.fps || 30;
-
-        let anim = new PIXI.extras.AnimatedSprite(Resources.getTextures());
-        anim.anchor.set(0.5);
-        anim.animationSpeed = fps / 60;
-
-        let randomFrame = Math.floor(conf.frames * Math.random())
-        anim.gotoAndStop(randomFrame);
-        return anim;*/
-    }
-
 
     private onResize(e): void {
         this.greed.resize();
@@ -81,7 +69,7 @@ export default class Stage {
     private onMouseMove(e: MouseEvent): void {
         if (this.dragPointer) {
             this.globalTranslate(this.pointer, e.movementX, e.movementY);
-            //this.particles.setPosEnd(this.pointer.x, this.pointer.y);
+            this.particlesRenderer.setPosEnd(this.pointer.x, this.pointer.y);
         }
         if (this.dragCanvas) {
             this.dragStage(e.movementX, e.movementY);
@@ -112,14 +100,13 @@ export default class Stage {
 
     private resetPointer(): void {
         this.pointer.x = 0;
-        this.pointer.y = -200;
+        this.pointer.y = -400;
 
     }
     private onMouseUp(e: MouseEvent): void {
         this.dragPointer = false;
         this.dragCanvas = false;
     }
-
 
     public zoomStage(pointerX: number, pointerY: number, zoomStep: number): void {
         let offsetX = (pointerX - this.stage.x) / this.stage.scaleX;
@@ -159,8 +146,10 @@ export default class Stage {
         target.y += b / parent.transform.global.scaleY;
     }
 
-    public onEnterFrame(): void {
+    public onEnterFrame(dt: number): void {
         this.updateGlobalTransform(this.stage);
+        this.particlesRenderer.update(dt);
+
         this.renderer.present();
     }
 
