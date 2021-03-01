@@ -1,7 +1,7 @@
 import Utils from "../helper/Utils";
 import produce from "immer";
 import { UPDATE_CONFIG_VALUE, UPDATE_INPUT_VALUE } from "../actions/types";
-
+import { clamp, hexToRgb, rgbToHex } from "dizzy-utils";
 
 const configInitialState = {
     inputValues: {},
@@ -36,7 +36,7 @@ const configInitialState = {
 
 const getStrValue = (value: any[], isBool: boolean, isColor: boolean): string => {
     if (isColor) {
-        return value.map(item => Utils.rgbToHex(Utils.hexToRgb(item), "")).join(", ");
+        return value.map(item => rgbToHex(hexToRgb(item), "")).join(", ");
     } else if (isBool) {
         return value[0] === 1 ? "true" : "false";
     } else {
@@ -138,12 +138,12 @@ const getProperValue = (data: any, key: string, value: string): any => {
 
     return parse.map(item => {
         if (data.isColor && item.color) {
-            let rgb = Utils.hexToRgb(item.color);
-            return Utils.rgbToHex(rgb, "0x");
+            let rgb = hexToRgb(item.color);
+            return rgbToHex(rgb, "0x");
         } else if (item.range !== undefined) {
-            return item.range.map(value => Utils.clampValue(data.min, data.max, value));
+            return item.range.map(value => clamp(data.min, data.max, value));
         } else {
-            return Utils.clampValue(data.min, data.max, item.num!);
+            return clamp(data.min, data.max, item.num!);
         }
     });
 };
