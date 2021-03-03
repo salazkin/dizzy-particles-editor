@@ -16,9 +16,7 @@ const Controls: React.FC = () => {
                 <PropGroup id={"scale"} items={{ from: "scaleFrom", to: "scaleTo", yoyo: "scaleYoYo" }} />
                 <PropGroup id={"rotation"} items={{ speed: "rotationSpeed", faceDir: "rotationFaceDir" }} />
                 <PropGroup id={"alpha"} items={{ from: "alphaFrom", to: "alphaTo", yoyo: "alphaYoYo" }} />
-                {/*
-                <PropGroup id={"color"} items={{ tint: "tint", interpolate: "tintInterpolate", additive: "additive" }} />  TODO: add color tint support in dizzy-canvas
-                */} 
+                <PropGroup id={"color"} items={{ tint: "tint", interpolate: "tintInterpolate" }} />
             </div>
         </div>
     );

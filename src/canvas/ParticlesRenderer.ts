@@ -20,7 +20,7 @@ export default class ParticlesRenderer extends Node {
     private getParticle(index: number) {
         if (this.sprites[index] === undefined) {
             let sprite: Sprite = new Sprite();
-            Graphics.drawCirc("particle", 6, "#ffff00").then((img: HTMLImageElement) => {
+            Graphics.drawCirc("particle", 6, "#ffffff").then((img: HTMLImageElement) => {
                 sprite.setTexture(img);
                 sprite.setAnchor(0.5);
             });
@@ -42,6 +42,7 @@ export default class ParticlesRenderer extends Node {
             particle.alpha = particleData.result.alpha;
             particle.scaleX = particleData.result.scaleX;
             particle.scaleY = particleData.result.scaleY;
+            particle.setTint(particleData.result.tint, 1);
         });
     }
 

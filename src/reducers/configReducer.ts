@@ -1,7 +1,7 @@
-import Utils from "../helper/Utils";
+import { clamp } from "dizzy-utils";
 import produce from "immer";
 import { UPDATE_CONFIG_VALUE, UPDATE_INPUT_VALUE } from "../actions/types";
-import { clamp, hexToRgb, rgbToHex } from "dizzy-utils";
+import Utils from "../helper/Utils";
 
 const configInitialState = {
     inputValues: {},
@@ -26,17 +26,20 @@ const configInitialState = {
         alphaFrom: { value: [1], min: 0 },
         alphaTo: { value: [1], min: 0 },
         alphaYoYo: { value: [0], isBool: true, isSingleValue: true },
-        tint: { value: ["0xffffff"], isColor: true },
-        tintInterpolate: { value: [0], isBool: true, isSingleValue: true },
-        additive: { value: [0], isBool: true, isSingleValue: true }
+        tint: { value: ["0xffff00", "0xff0000"], isColor: true },
+        tintInterpolate: { value: [1], isBool: true, isSingleValue: true }
     },
     output: null
 };
 
+const getHexStr = (hex: number, prefix = ""): string => {
+    const str = hex.toString(16);
+    return prefix + "000000".substr(0, 6 - str.length) + str;
+};
 
 const getStrValue = (value: any[], isBool: boolean, isColor: boolean): string => {
     if (isColor) {
-        return value.map(item => rgbToHex(hexToRgb(item), "")).join(", ");
+        return value.map(hex => getHexStr(parseInt(hex), "0x")).join(", ");
     } else if (isBool) {
         return value[0] === 1 ? "true" : "false";
     } else {
@@ -94,8 +97,6 @@ const configReducer = (state = configInitialState, action) => {
                 draft.inputValues[action.payload.id] = getStrValue(properValue, data.isBool, data.isColor);
                 draft.output = getOutput(draft.params);
             });
-
-
         default:
             return state;
     }
@@ -138,8 +139,7 @@ const getProperValue = (data: any, key: string, value: string): any => {
 
     return parse.map(item => {
         if (data.isColor && item.color) {
-            let rgb = hexToRgb(item.color);
-            return rgbToHex(rgb, "0x");
+            return item.color;
         } else if (item.range !== undefined) {
             return item.range.map(value => clamp(data.min, data.max, value));
         } else {
@@ -157,12 +157,12 @@ const parseValues = (str: string): null | DataInfo[] => {
     let err = false;
     let arr = str.split(",").map(v => {
         let num: number | undefined;
-        let bool: boolean | number | undefined;;
-        let str: string | undefined;;
-        let range: number[] | undefined;;
-        let color: string | undefined;;
+        let bool: boolean | number | undefined;
+        let str: string | undefined;
+        let range: number[] | undefined;
+        let color: string | undefined;
 
-        if (Utils.isValidColor(v)) {
+        if (Utils.isValidColor(v)) { //TODO fix isValidColor
             color = v;
         }
 
