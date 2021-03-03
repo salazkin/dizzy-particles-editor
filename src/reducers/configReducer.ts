@@ -32,14 +32,14 @@ const configInitialState = {
     output: null
 };
 
-const getHexStr = (hex: number, prefix = ""): string => {
+const getHexStr = (hex: number): string => {
     const str = hex.toString(16);
-    return prefix + "000000".substr(0, 6 - str.length) + str;
+    return "000000".substr(0, 6 - str.length) + str;
 };
 
 const getStrValue = (value: any[], isBool: boolean, isColor: boolean): string => {
     if (isColor) {
-        return value.map(hex => getHexStr(parseInt(hex), "0x")).join(", ");
+        return value.map(hex => getHexStr(parseInt(hex))).join(", ");
     } else if (isBool) {
         return value[0] === 1 ? "true" : "false";
     } else {
@@ -162,8 +162,8 @@ const parseValues = (str: string): null | DataInfo[] => {
         let range: number[] | undefined;
         let color: string | undefined;
 
-        if (Utils.isValidColor(v)) { //TODO fix isValidColor
-            color = v;
+        if (Utils.isValidColor(v)) {
+            color = "0x" + v;
         }
 
         if (v.indexOf("~") !== -1) {
