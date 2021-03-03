@@ -1,5 +1,3 @@
-const path = require('path');
-
 module.exports = {
     entry: './src/index.tsx',
     resolve: {
@@ -23,16 +21,8 @@ module.exports = {
                         options: {
                             sourceMap: true,
                         },
-                    },]
+                    }]
             }
         ]
-    },
-    devtool: "source-map",
-    devServer: {
-        contentBase: path.resolve(__dirname, './'),
-        host: '127.0.0.1',
-        historyApiFallback: true,
-        port: 8015,
-        open: true
     }
-}
+};
