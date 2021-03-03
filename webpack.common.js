@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
     entry: './src/index.tsx',
     resolve: {
@@ -20,7 +21,7 @@ module.exports = {
                         loader: "sass-loader",
                         options: {
                             sourceMap: true,
-                        },
+                        }
                     }]
             }
         ]
